@@ -45,23 +45,24 @@ public final class BindingDataStore {
     public Optional<BindingData> getDataByName(String name, Type target) {
         return this.getDataByLevels((s, l) -> s.computeByName(l, name, target), BINDING_NAME, TRIGGER_METADATA_NAME, METADATA_NAME);
     }
+    
+    public Optional<BindingData> getDataByNameList(String name, Type target) {
+        return this.getDataByLevels((s, l) -> {
+			try {
+				return s.computeByNameList(l, name, target);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}, BINDING_NAME, TRIGGER_METADATA_NAME, METADATA_NAME);
+    }
 
     public Optional<BindingData> getDataByType(Type target) {
         return this.getDataByLevels((s, l) -> s.computeByType(l, target), TYPE_ASSIGNMENT, TYPE_STRICT_CONVERSION, TYPE_RELAXED_CONVERSION);
     }
     
-    public Optional<BindingData> getDataByListType(Type target) {
-        return this.getDataByLevels((s, l) -> {
-			try {
-				return s.computeByList(l, target);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}			
-		}, TYPE_ASSIGNMENT, TYPE_STRICT_CONVERSION, TYPE_RELAXED_CONVERSION);
-    }
-
+    
     private Optional<BindingData> getDataByLevels(BiFunction<DataSource<?>, MatchingLevel, Optional<BindingData>> worker, MatchingLevel... levels) {
         for (MatchingLevel level : levels) {
             List<BindingData> data = this.sources.stream()
