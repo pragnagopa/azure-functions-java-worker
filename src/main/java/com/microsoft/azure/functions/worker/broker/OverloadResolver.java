@@ -5,6 +5,9 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.*;
 
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
 import com.google.common.collect.*;
 import com.microsoft.azure.functions.*;
 import com.microsoft.azure.functions.worker.binding.*;
@@ -47,7 +50,11 @@ public class OverloadResolver {
                 Optional<BindingData> argument;
                 if (OutputBinding.class.isAssignableFrom(TypeUtils.getRawType(param.type, null))) {
                     argument = dataStore.getOrAddDataTarget(invokeInfo.outputsId, param.name, param.type);
-                } else if (param.name != null && !param.name.isEmpty()) {
+                }else if(Collection.class.isAssignableFrom(TypeUtils.getRawType(param.type, null)))
+                {
+                	argument = dataStore.getDataByListType(param.type);
+                }
+                else if (param.name != null && !param.name.isEmpty()) {
                     argument = dataStore.getDataByName(param.name, param.type);
                 } else {
                     argument = dataStore.getDataByType(param.type);

@@ -1,5 +1,6 @@
 package com.microsoft.azure.functions.worker.binding;
 
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
@@ -47,6 +48,18 @@ public final class BindingDataStore {
 
     public Optional<BindingData> getDataByType(Type target) {
         return this.getDataByLevels((s, l) -> s.computeByType(l, target), TYPE_ASSIGNMENT, TYPE_STRICT_CONVERSION, TYPE_RELAXED_CONVERSION);
+    }
+    
+    public Optional<BindingData> getDataByListType(Type target) {
+        return this.getDataByLevels((s, l) -> {
+			try {
+				return s.computeByList(l, target);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}			
+		}, TYPE_ASSIGNMENT, TYPE_STRICT_CONVERSION, TYPE_RELAXED_CONVERSION);
     }
 
     private Optional<BindingData> getDataByLevels(BiFunction<DataSource<?>, MatchingLevel, Optional<BindingData>> worker, MatchingLevel... levels) {
