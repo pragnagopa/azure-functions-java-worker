@@ -1,11 +1,19 @@
 package com.microsoft.azure.functions.worker.binding;
 
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 
 import org.apache.commons.lang3.*;
 import org.apache.commons.lang3.reflect.*;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.functions.*;
 import com.microsoft.azure.functions.worker.binding.BindingData.*;
 import com.microsoft.azure.functions.rpc.messages.*;
@@ -56,6 +64,19 @@ abstract class DataSource<T> {
             return new BindingData(obj, level);
         });
     }
+    
+    Optional<BindingData> computeByList(MatchingLevel level, Type target) throws JsonParseException, JsonMappingException, IOException {
+    	 ObjectMapper RELAXED_JSON_MAPPER = new ObjectMapper();
+       	 RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
+            RELAXED_JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            RELAXED_JSON_MAPPER.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+            String sourceValue = (String)this.value;
+            Object obj = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(ArrayList.class, TypeUtils.getRawType(target, null)));
+            obj = Optional.ofNullable(obj);
+            return Optional.ofNullable(new BindingData(obj, level));
+    }
+    
 
     Optional<DataSource<?>> lookupName(MatchingLevel level, String name) {
         return Optional.ofNullable(level == BINDING_NAME && this.name != null && this.name.equals(name) ? this : null);
