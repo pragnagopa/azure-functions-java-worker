@@ -47,6 +47,19 @@ abstract class DataSource<T> {
         data.ifPresent(d -> d.setLevel(level));
         return data;
     }
+    
+    Optional<BindingData> computeByNameList(MatchingLevel level, String name, Type target) throws JsonParseException, JsonMappingException, IOException {
+        Optional<DataSource<?>> source = this.lookupName(level, name);
+        if (!source.isPresent()) {
+            if (target.equals(Optional.class)) {
+                return Optional.of(new BindingData(Optional.empty(), level));
+            }
+            return Optional.empty();
+        }
+        Optional<BindingData> data = source.get().computeByList(target);
+        data.ifPresent(d -> d.setLevel(level));
+        return data;
+    }
 
     Optional<BindingData> computeByType(MatchingLevel level, Type target) {
         boolean isTargetOptional = Optional.class.equals(TypeUtils.getRawType(target, null));
@@ -65,7 +78,7 @@ abstract class DataSource<T> {
         });
     }
     
-    Optional<BindingData> computeByList(MatchingLevel level, Type target) throws JsonParseException, JsonMappingException, IOException {
+    Optional<BindingData> computeByList(Type target) throws JsonParseException, JsonMappingException, IOException {
     	 ObjectMapper RELAXED_JSON_MAPPER = new ObjectMapper();
        	 RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
@@ -74,7 +87,7 @@ abstract class DataSource<T> {
             String sourceValue = (String)this.value;
             Object obj = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(ArrayList.class, TypeUtils.getRawType(target, null)));
             obj = Optional.ofNullable(obj);
-            return Optional.ofNullable(new BindingData(obj, level));
+            return Optional.ofNullable(new BindingData(obj, TYPE_RELAXED_CONVERSION));
     }
     
 

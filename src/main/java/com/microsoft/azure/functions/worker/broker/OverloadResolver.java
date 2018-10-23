@@ -52,7 +52,7 @@ public class OverloadResolver {
                     argument = dataStore.getOrAddDataTarget(invokeInfo.outputsId, param.name, param.type);
                 }else if(Collection.class.isAssignableFrom(TypeUtils.getRawType(param.type, null)))
                 {
-                	argument = dataStore.getDataByListType(param.type);
+                	argument = dataStore.getDataByNameList(param.name, param.type);
                 }
                 else if (param.name != null && !param.name.isEmpty()) {
                     argument = dataStore.getDataByName(param.name, param.type);
