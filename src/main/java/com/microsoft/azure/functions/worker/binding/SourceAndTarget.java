@@ -85,7 +85,7 @@ abstract class DataSource<T> {
             RELAXED_JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             RELAXED_JSON_MAPPER.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
             String sourceValue = (String)this.value;
-            Object obj = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(ArrayList.class, TypeUtils.getRawType(target, null)));
+            Object obj = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, TypeUtils.getRawType(target, null)));
             obj = Optional.ofNullable(obj);
             return Optional.ofNullable(new BindingData(obj, TYPE_RELAXED_CONVERSION));
     }
