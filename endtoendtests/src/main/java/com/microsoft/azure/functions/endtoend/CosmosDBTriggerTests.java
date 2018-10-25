@@ -73,7 +73,7 @@ public class CosmosDBTriggerTests {
     @FunctionName("CosmosDBInputQueryPOJOList")
     public HttpResponseMessage CosmosDBInputQueryPOJOList(@HttpTrigger(name = "req", methods = { HttpMethod.GET,
             HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            @CosmosDBInput(name = "item", databaseName = "%CosmosDBDatabaseName%", collectionName = "ItemsCollectionIn", connectionStringSetting = "AzureWebJobsCosmosDBConnectionString", sqlQuery = "SELECT f.id, f.name FROM f WHERE f.name = {name}") List<Document> items,
+            @CosmosDBInput(name = "item", databaseName = "%CosmosDBDatabaseName%", collectionName = "ItemsCollectionIn", connectionStringSetting = "AzureWebJobsCosmosDBConnectionString", sqlQuery = "SELECT f.id, f.name FROM f WHERE f.name = {name}") Optional<ArrayList<Document>> items,
             final ExecutionContext context) {
         context.getLogger().info("Java HTTP trigger processed a request.");
         
