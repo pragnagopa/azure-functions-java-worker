@@ -79,15 +79,30 @@ abstract class DataSource<T> {
     }
     
     Optional<BindingData> computeByList(Type target) throws JsonParseException, JsonMappingException, IOException {
+    	 boolean isTargetOptional = Optional.class.equals(TypeUtils.getRawType(target, null));
+    	if (isTargetOptional) {
+            Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(target, Optional.class);
+            target = typeArgs.size() > 0 ? typeArgs.values().iterator().next() : Object.class;
+        }
+    	
     	 ObjectMapper RELAXED_JSON_MAPPER = new ObjectMapper();
        	 RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             RELAXED_JSON_MAPPER.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
             RELAXED_JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             RELAXED_JSON_MAPPER.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
             String sourceValue = (String)this.value;
-            Object obj = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, TypeUtils.getRawType(target, null)));
-            obj = Optional.ofNullable(obj);
-            return Optional.ofNullable(new BindingData(obj, TYPE_RELAXED_CONVERSION));
+            Object objList = RELAXED_JSON_MAPPER.readValue(sourceValue, RELAXED_JSON_MAPPER.getTypeFactory().constructCollectionType(List.class, TypeUtils.getRawType(target, null)));
+            return this.operations.apply(this.value,  TYPE_RELAXED_CONVERSION, target).map(obj -> {
+            	obj = objList;
+                if (isTargetOptional) {
+                    if (obj == ObjectUtils.NULL) {
+                    	obj = null;
+                    }
+                    obj = Optional.ofNullable(objList);
+                }
+                return new BindingData(objList, TYPE_RELAXED_CONVERSION);
+            });
+           
     }
     
 
