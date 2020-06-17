@@ -30,7 +30,7 @@ build_script:
        Write-Host “Found git tag."
       } 
       else {
-       $buildNumber = "1.6.1-beta-$env:APPVEYOR_BUILD_NUMBER"
+       $buildNumber = "1.6.1-$env:APPVEYOR_BUILD_NUMBER"
        Write-Host “git tag not found. Setting package suffix to '$buildNumber'"
       }     
       .\package.ps1 -buildNumber $buildNumber
@@ -45,7 +45,7 @@ after_build:
   - ps: >
       .\setup-tests.ps1
         
-#test_script:
-#  - ps: >
-#      .\run-tests.ps1
+test_script:
+  - ps: >
+      .\run-tests.ps1
   
