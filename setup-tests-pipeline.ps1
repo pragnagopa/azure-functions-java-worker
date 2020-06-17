@@ -23,7 +23,7 @@ if(!$skipCliDownload)
 
   if ($version -and $version.trim())
   {
-    $env:CORE_TOOLS_URL = "https://pgopafunctestv2storage.blob.core.windows.net/cli/Azure.Functions.Cli.win-x86.pgopa.zip"
+    $env:CORE_TOOLS_URL = "https://pgopafunctestv2storage.blob.core.windows.net/cli/pgopa-cli.zip"
   }
   Write-Host "CORE_TOOLS_URL: $env:CORE_TOOLS_URL"
   $output = "$currDir\Azure.Functions.Cli.zip"
